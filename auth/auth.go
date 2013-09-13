@@ -8,12 +8,20 @@ import (
 	"encoding/binary"
 	"fmt"
 	"hash"
+	"io"
+	"math/rand"
 	"time"
 )
 
 var (
 	Debug = false
 )
+
+func GenSecretKey() string {
+	h := sha1.New()
+	io.WriteString(h, fmt.Sprintf("%d", rand.Int63n(time.Now().Unix())))
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
 
 type Authenticator struct {
 	Interval  int

@@ -36,7 +36,7 @@ func main() {
 	auth.Debug = f_debug // set global debugging
 
 	if f_gen {
-		fmt.Printf("ERROR: not implemented yet\n")
+		fmt.Printf("salt: %s\n", auth.GenSecretKey())
 		return
 	}
 
