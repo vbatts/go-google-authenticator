@@ -36,19 +36,25 @@ func New(salt string, twofiftysix bool) Authenticator {
 		h = sha1.New()
 	}
 
-  return Authenticator{
+	return Authenticator{
 		Interval:  30,
-    Hash: h,
+		Hash:      h,
 		SecretKey: bytes.NewBufferString(salt).Bytes(),
-  }
+	}
 }
 
-func (a Authenticator) GetCodeCurrent() (int, int64, error) {
-	return a.GetCode(0)
-}
-
+/*
+Construct an new Hmac hash with the secret and hashlib (sha1 or sha256)
+*/
 func (a Authenticator) Hmac() hash.Hash {
 	return hmac.New(func() hash.Hash { return a.Hash }, a.SecretKey)
+}
+
+/*
+Convenience to get the token for the present time
+*/
+func (a Authenticator) GetCodeCurrent() (int, int64, error) {
+	return a.GetCode(0)
 }
 
 /*

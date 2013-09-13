@@ -46,7 +46,7 @@ func main() {
 	}
 
 	a := auth.New(f_salt, f_hash_sha256)
-  a.Interval = f_interval
+	a.Interval = f_interval
 
 	j, x, err := a.GetCodeCurrent()
 	if err != nil {
