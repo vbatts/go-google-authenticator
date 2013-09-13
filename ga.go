@@ -82,8 +82,9 @@ func main() {
       // again, is in config, and no flag provided
       f_hash_sha256 = config.Sha256
     }
-	} else if err != nil {
-		fmt.Fprintf(os.Stderr, "WARN: error stat'ing %s: %s\n", config_file, err)
+	} else if err != nil && !os.IsNotExist(err) {
+    fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+    os.Exit(1)
 	}
 
 	if f_gen {
