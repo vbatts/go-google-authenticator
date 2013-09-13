@@ -62,7 +62,7 @@ func (a Authenticator) Hmac() hash.Hash {
 Convenience to get the token for the present time
 */
 func (a Authenticator) GetCodeCurrent() (int, int64, error) {
-	return a.GetCode(0)
+	return a.GetCode(0, time.Now().Unix())
 }
 
 /*
@@ -74,8 +74,7 @@ c = 1  :: the next code
 
 the returns are: code, seconds to expire, error
 */
-func (a Authenticator) GetCode(c int) (int, int64, error) {
-	now := time.Now().Unix()
+func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 	t_chunk := (now / int64(a.Interval)) + int64(c)
 
 	buf_in := bytes.Buffer{}

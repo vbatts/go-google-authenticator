@@ -3,9 +3,6 @@ Google-Authenticator implementation
 */
 package main
 
-// TODO make a generator. on ruby, something like:
-// > rand(999999999999999999999999999999).to_s(16) * 2
-
 import (
 	"flag"
 	"fmt"
