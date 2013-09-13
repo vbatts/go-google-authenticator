@@ -115,9 +115,6 @@ func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 		fmt.Printf("mod1000000:\t%#v\n", code)
 		fmt.Printf("mod1000000:\t%b\n", code)
 	}
-	// need to ensure this is padded to always be 6 long
-	if code < 100000 {
-	}
 
 	i := int64(a.Interval)
 	x := (((now + i) / i) * i) - now

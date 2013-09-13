@@ -68,23 +68,23 @@ func main() {
 			fmt.Printf("Read-in config:\t%#v\n", config)
 		}
 
-    // Set the variables!
-    if config.Interval != 0 && f_interval != 0 {
-      // this is if the configuration file has an interval,
-      // and they didn't pass a flag
-      f_interval = config.Interval
-    }
-    if len(config.Salt) > 0 && len(f_salt) == 0 {
-      // again, is in config, and no flag provided
-      f_salt = config.Salt
-    }
-    if config.Sha256 && !f_hash_sha256 {
-      // again, is in config, and no flag provided
-      f_hash_sha256 = config.Sha256
-    }
+		// Set the variables!
+		if config.Interval != 0 && f_interval != 0 {
+			// this is if the configuration file has an interval,
+			// and they didn't pass a flag
+			f_interval = config.Interval
+		}
+		if len(config.Salt) > 0 && len(f_salt) == 0 {
+			// again, is in config, and no flag provided
+			f_salt = config.Salt
+		}
+		if config.Sha256 && !f_hash_sha256 {
+			// again, is in config, and no flag provided
+			f_hash_sha256 = config.Sha256
+		}
 	} else if err != nil && !os.IsNotExist(err) {
-    fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
-    os.Exit(1)
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+		os.Exit(1)
 	}
 
 	if f_gen {
@@ -107,7 +107,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("%d (expires in %ds)\n", j, x)
+	// this number is to be padded with zeros, always 6 digits long
+	fmt.Printf("%06d (expires in %ds)\n", j, x)
 }
 
 type Config struct {
