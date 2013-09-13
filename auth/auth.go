@@ -2,6 +2,9 @@ package auth
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
 	"hash"
@@ -9,16 +12,43 @@ import (
 )
 
 var (
-  Debug = false
+	Debug = false
 )
 
 type Authenticator struct {
-	Interval int
-	Hash     hash.Hash
+	Interval  int
+	SecretKey []byte
+	Hash      hash.Hash
+}
+
+/*
+Get a new Authenticator.
+from a string of the ToTP salt,
+and a bool of whether to use sha256 (default is sha1)
+
+Also defaults to 30 second interval
+*/
+func New(salt string, twofiftysix bool) Authenticator {
+	var h hash.Hash
+	if twofiftysix {
+		h = sha256.New()
+	} else {
+		h = sha1.New()
+	}
+
+  return Authenticator{
+		Interval:  30,
+    Hash: h,
+		SecretKey: bytes.NewBufferString(salt).Bytes(),
+  }
 }
 
 func (a Authenticator) GetCodeCurrent() (int, int64, error) {
 	return a.GetCode(0)
+}
+
+func (a Authenticator) Hmac() hash.Hash {
+	return hmac.New(func() hash.Hash { return a.Hash }, a.SecretKey)
 }
 
 /*
@@ -40,8 +70,9 @@ func (a Authenticator) GetCode(c int) (int, int64, error) {
 		return 0, 0, err
 	}
 
-	a.Hash.Write(buf_in.Bytes())
-	sum := a.Hash.Sum(nil)
+	h := a.Hmac()
+	h.Write(buf_in.Bytes())
+	sum := h.Sum(nil)
 	offset := sum[len(sum)-1] & 0xF
 	code_sect := sum[offset : offset+4]
 	if Debug {

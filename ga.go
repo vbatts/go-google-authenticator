@@ -3,16 +3,14 @@ Google-Authenticator implementation
 */
 package main
 
+// TODO make a generator. on ruby, something like:
+// > rand(999999999999999999999999999999).to_s(16) * 2
+
 import (
-	"bytes"
-	"crypto/hmac"
-	"crypto/sha1"
-	"crypto/sha256"
 	"flag"
 	"fmt"
-	"hash"
 
-  "github.com/vbatts/go-google-authenticator/auth"
+	"github.com/vbatts/go-google-authenticator/auth"
 )
 
 func main() {
@@ -47,18 +45,8 @@ func main() {
 		return
 	}
 
-	h_func := func() hash.Hash {
-		if f_hash_sha256 {
-			return sha256.New()
-		}
-		return sha1.New()
-	}
-
-	k := bytes.NewBufferString(f_salt).Bytes()
-	a := auth.Authenticator{
-		Interval: f_interval,
-		Hash:     hmac.New(h_func, k),
-	}
+	a := auth.New(f_salt, f_hash_sha256)
+  a.Interval = f_interval
 
 	j, x, err := a.GetCodeCurrent()
 	if err != nil {
@@ -66,9 +54,3 @@ func main() {
 	}
 	fmt.Printf("%d (expires in %ds)\n", j, x)
 }
-
-var (
-	// TODO make a generator. on ruby, something like:
-	// > rand(999999999999999999999999999999).to_s(16) * 2
-)
-
