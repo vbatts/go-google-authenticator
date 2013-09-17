@@ -19,6 +19,8 @@ func main() {
 	var (
 		f_debug       bool = false
 		f_gen         bool = false
+		f_gen_account string
+		f_gen_key     string
 		f_hash_sha256 bool = false
 		f_interval    int
 		f_salt        string
@@ -27,6 +29,10 @@ func main() {
 
 	flag.BoolVar(&f_gen, "gen", f_gen,
 		"generate a new TOTP salt")
+	flag.StringVar(&f_gen_account, "account", f_gen_account,
+		"when using -gen, set this as the account")
+	flag.StringVar(&f_gen_key, "key", f_gen_key,
+		"when using -gen, use this as the key instead of a random one")
 	flag.BoolVar(&f_debug, "debug", f_debug,
 		"debugging output")
 	flag.BoolVar(&f_hash_sha256, "sha256", f_hash_sha256,
@@ -88,7 +94,13 @@ func main() {
 	}
 
 	if f_gen {
-		fmt.Printf("salt: %s\n", auth.GenSecretKey())
+		if len(f_gen_key) == 0 {
+			f_gen_key = auth.GenSecretKey()
+		}
+		if len(f_gen_account) == 0 {
+			f_gen_account = os.Getenv("USER")
+		}
+		fmt.Printf("salt: %s\n%s\n", f_gen_key, auth.QrCode(f_gen_account, f_gen_key))
 		return
 	}
 

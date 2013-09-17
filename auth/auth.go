@@ -6,21 +6,32 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/binary"
+	"encoding/base32"
 	"fmt"
 	"hash"
 	"io"
 	"math/rand"
+	"net/url"
 	"time"
 )
 
 var (
-	Debug = false
+	Dim    = 400 // dimensions for the QrCode()
+	Debug  = false
+	Issuer = "go-google-authenticator"
 )
 
 func GenSecretKey() string {
 	h := sha1.New()
 	io.WriteString(h, fmt.Sprintf("%d", rand.Int63n(time.Now().Unix())))
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func QrCode(account, key string) string {
+	otp_str := fmt.Sprintf("otpauth://totp/%s:%s?secret=%s&issuer=%s",
+		Issuer, account, base32.StdEncoding.EncodeToString([]byte(key)), Issuer)
+	return fmt.Sprintf("https://chart.googleapis.com/chart?chs=%dx%d&cht=qr&choe=UTF-8&chl=%s",
+		Dim, Dim, url.QueryEscape(otp_str))
 }
 
 type Authenticator struct {
