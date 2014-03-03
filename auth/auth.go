@@ -5,26 +5,45 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/sha256"
-	"encoding/binary"
 	"encoding/base32"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"hash"
-	"io"
-	"math/rand"
+	"math"
 	"net/url"
 	"time"
 )
 
 var (
-	Dim    = 400 // dimensions for the QrCode()
-	Debug  = false
-	Issuer = "go-google-authenticator"
+	Dim               = 400 // dimensions for the QrCode()
+	Debug             = false
+	Issuer            = "go-google-authenticator"
+	ErrCipherNotFound = errors.New("cipher not supported")
 )
 
-func GenSecretKey() string {
-	h := sha1.New()
-	io.WriteString(h, fmt.Sprintf("%d", rand.Int63n(time.Now().Unix())))
-	return fmt.Sprintf("%x", h.Sum(nil))
+func getTs() int64 {
+	un := float64(time.Now().UnixNano()) / float64(1000) / float64(30)
+	return int64(math.Floor(un))
+}
+
+func GenSecretKey(cipher string) (string, error) {
+	var hmac_hash hash.Hash
+	switch cipher {
+	case "sha1":
+		hmac_hash = sha1.New()
+	case "sha256":
+		hmac_hash = sha256.New()
+	default:
+		return "", ErrCipherNotFound
+	}
+	buf := bytes.Buffer{}
+	err := binary.Write(&buf, binary.BigEndian, getTs())
+	if err != nil {
+		return "", err
+	}
+	h := hmac.New(func() hash.Hash { return hmac_hash }, buf.Bytes())
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func QrCode(account, key string) string {
@@ -89,7 +108,7 @@ func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 	t_chunk := (now / int64(a.Interval)) + int64(c)
 
 	buf_in := bytes.Buffer{}
-	err := binary.Write(&buf_in, binary.LittleEndian, int32(t_chunk))
+	err := binary.Write(&buf_in, binary.BigEndian, int32(t_chunk))
 	if err != nil {
 		return 0, 0, err
 	}
@@ -108,7 +127,7 @@ func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 	}
 	var code int32
 	buf_out := bytes.NewBuffer(code_sect)
-	err = binary.Read(buf_out, binary.LittleEndian, &code)
+	err = binary.Read(buf_out, binary.BigEndian, &code)
 	if err != nil {
 		return 0, 0, err
 	}

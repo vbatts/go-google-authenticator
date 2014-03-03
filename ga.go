@@ -95,7 +95,15 @@ func main() {
 
 	if f_gen {
 		if len(f_gen_key) == 0 {
-			f_gen_key = auth.GenSecretKey()
+			if f_hash_sha256 {
+				f_gen_key, err = auth.GenSecretKey("sha256")
+			} else {
+				f_gen_key, err = auth.GenSecretKey("sha1")
+			}
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+				os.Exit(1)
+			}
 		}
 		if len(f_gen_account) == 0 {
 			f_gen_account = os.Getenv("USER")
