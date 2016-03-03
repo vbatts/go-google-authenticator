@@ -6,7 +6,10 @@ import (
 )
 
 func TestGen(t *testing.T) {
-	s := GenSecretKey()
+	s, err := GenSecretKey("sha1")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(s) < 40 {
 		t.Errorf("the key must be 40 characters or more. not %d", len(s))
 	}

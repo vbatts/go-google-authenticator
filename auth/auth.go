@@ -108,7 +108,7 @@ func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 	t_chunk := (now / int64(a.Interval)) + int64(c)
 
 	buf_in := bytes.Buffer{}
-	err := binary.Write(&buf_in, binary.BigEndian, int32(t_chunk))
+	err := binary.Write(&buf_in, binary.BigEndian, int64(t_chunk))
 	if err != nil {
 		return 0, 0, err
 	}
