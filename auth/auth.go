@@ -114,6 +114,7 @@ func (a Authenticator) GetCode(c int, now int64) (int, int64, error) {
 	}
 
 	h := a.Hmac()
+	h.Reset()
 	h.Write(buf_in.Bytes())
 	sum := h.Sum(nil)
 	offset := sum[len(sum)-1] & 0xF
